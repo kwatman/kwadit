@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, shallowRef, defineAsyncComponent } from 'vue'
+import actionLoader from './actionLoader'
 const props = defineProps({
   msg: String
 })
 
 const editor = ref(null)
+const actions = shallowRef([])
+actionLoader().then((res) => {
+  console.log(res)
+  actions.value = res
+})
 
 const insertH1 = () => {
   const heading = document.createElement('h1')
@@ -55,10 +61,13 @@ const addContentEditableButton = () => {
 </script>
 
 <template>
-  <div>
-    <div>
+  <div class="editor">
+    <div class="actions">
       <button @click="insertH1">h1</button>
       <button @click="addContentEditableButton">Add Content Editable Button</button>
+      <template v-for="(action, index) in actions" :key="index">
+        <component :is="action?.component"></component>
+      </template>
     </div>
     <div class="editablearea" ref="editor" contenteditable="true"></div>
   </div>
@@ -69,5 +78,16 @@ const addContentEditableButton = () => {
   width: 100%;
   min-height: 100px;
   font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid black;
+}
+.editor {
+  border: 2px solid black;
+  padding: 10px;
+}
+.actions {
+  display: flex;
+  margin-bottom: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 </style>
